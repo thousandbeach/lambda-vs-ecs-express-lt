@@ -117,15 +117,17 @@ processHtml(
   },
 );
 
-// 自己紹介 (OGP マーカー無いのでそのまま copy で良いが、 上の processHtml が
-// warning を出しながら通すので統一)
+// 自己紹介 (OGP マーカー入りなので processHtml で OGP 注入)
 const selfIntroPath = join(REPO_ROOT, 'self-intro.html');
 if (existsSync(selfIntroPath)) {
   processHtml(selfIntroPath, join(DIST, 'self-intro.html'), {
     pagePath: '/self-intro.html',
     title: 'About me — たかぼー / GLOCALS',
-    description: 'JAWS-UG LT 登壇者の自己紹介ページ',
-    imagePath: '/icon.jpg',
+    description:
+      'JAWS-UG 静岡 LT 登壇者 たかぼー の自己紹介。 ' +
+      'MBA + マーケティング が先、 エンジニアリングは後追い。 ' +
+      '医療系事業会社のクリエイティブ部門責任者 + フリーランス + 顧問先の問題解決。',
+    imagePath: '/ogp-intro.jpg', // 自己紹介専用 OGP (header カードを chrome headless で 1200×630)
   });
 }
 
@@ -133,7 +135,8 @@ if (existsSync(selfIntroPath)) {
 cpSync(join(REPO_ROOT, 'icon.jpg'), join(DIST, 'icon.jpg'));
 cpSync(join(REPO_ROOT, 'ogp.jpg'), join(DIST, 'ogp.jpg')); // Part I 用
 cpSync(join(REPO_ROOT, 'ogp-ecs.jpg'), join(DIST, 'ogp-ecs.jpg')); // Part II 用
-console.log('  copied icon.jpg, ogp.jpg, ogp-ecs.jpg');
+cpSync(join(REPO_ROOT, 'ogp-intro.jpg'), join(DIST, 'ogp-intro.jpg')); // 自己紹介用
+console.log('  copied icon.jpg, ogp.jpg, ogp-ecs.jpg, ogp-intro.jpg');
 
 // ── 4. 音声ファイル群 ───────────────────────────────────────────
 cpSync(join(REPO_ROOT, 'audio'), join(DIST, 'audio'), { recursive: true });

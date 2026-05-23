@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About me — たかぼー / GLOCALS</title>
+<!--__OGP__-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo+Black&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -253,6 +254,31 @@ footer {
   .avatar { width: 72px; height: 72px; }
   .name-block h1 { font-size: 28px; }
 }
+
+/* =========================================================================
+ * OGP screenshot mode (`?ogp=1` で発動): SNS 用 OG 画像を Chrome headless で
+ * 撮るとき、 ヘッダー部分 (avatar + 名前 + handle) だけを 1200×630 に綺麗に
+ * 切り出すための専用 CSS。
+ * ========================================================================= */
+body.ogp-mode { padding: 0 !important; }
+body.ogp-mode .section,
+body.ogp-mode footer { display: none !important; }
+body.ogp-mode .card {
+  max-width: 100% !important;
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 80px 100px !important;
+  background: rgba(14, 24, 40, 0.95) !important;
+}
+body.ogp-mode .header {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+body.ogp-mode .name-block h1 { font-size: 56px !important; }
+body.ogp-mode .name-block .handle { font-size: 20px !important; margin-top: 12px; }
+body.ogp-mode .avatar { width: 140px !important; height: 140px !important; }
+body.ogp-mode .tag { font-size: 16px !important; margin-bottom: 32px !important; }
 </style>
 </head>
 <body>
@@ -383,6 +409,13 @@ footer {
     TAKABO · GLOCALS · JAWS-UG SHIZUOKA
   </footer>
 </main>
+
+<script>
+// `?ogp=1` クエリで OGP 撮影モード (CSS 側で section 等を非表示にする)
+if (new URLSearchParams(location.search).has('ogp')) {
+  document.body.classList.add('ogp-mode');
+}
+</script>
 
 </body>
 </html>
