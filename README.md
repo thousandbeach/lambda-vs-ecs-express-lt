@@ -383,7 +383,7 @@ MIT License
 ## 🙏 謝辞
 
 - スライド構成・コード生成：Claude (Anthropic) との共作
-- イベント運営：JAWS-UG 静岡 支部の皆様
+- イベント運営：Media-JAWS の皆様 / JAWS-UG 浜松支部の皆様 / JAWS-UG 静岡支部の皆様 (3 支部合同開催)
 - TTS：OpenAI
 
 ---
