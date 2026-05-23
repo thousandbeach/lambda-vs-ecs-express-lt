@@ -1,0 +1,28 @@
+{
+  "name": "ecs-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JAWS-UG LT 続編「机上の比較から、実地の検証へ」のスライドを ECS Express Mode (Fargate + 共有 ALB) で配信する CDK スタック。shared/app.ts (Hono) を Lambda 版 (cdk-app/) と完全に同じ引数で呼び、インフラだけを差し替えて比較する。",
+  "bin": {
+    "ecs-app": "bin/ecs-app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^30",
+    "@types/node": "^24.10.1",
+    "aws-cdk": "2.1119.0",
+    "jest": "^30",
+    "ts-jest": "^29",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.248.0",
+    "constructs": "^10.5.0"
+  }
+}

@@ -1,0 +1,76 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript build artifacts
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+
+# CDK
+cdk.out/
+.cdk.staging/
+# CDK context cache (AZ などの環境依存値が入る。 再 synth で自動再生成される)
+cdk.context.json
+**/cdk.context.json
+
+# Local env
+.env
+.env.local
+.env.*.local
+*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Build outputs that should NOT be regenerated into the repo
+dist/
+build/
+
+# Sensitive
+*.pem
+*.key
+secrets.json
+
+# Benchmark raw outputs (results are summarized in JSON, raw can be regenerated)
+benchmarks/raw/
+benchmarks/.tmp/
+
+# AWS
+.aws/
+
+# Local agent / editor metadata (settings, permissions, transcripts)
+.claude/
+.aider*
+.cursor/
+
+# Sandbox / scratch
+scratch/
+tmp/

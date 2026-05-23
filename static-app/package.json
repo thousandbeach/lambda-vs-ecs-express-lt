@@ -1,0 +1,24 @@
+{
+  "name": "static-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LT 後の正解構成: 前回/今回スライドを S3 + CloudFront で静的配信。 cdk-app(Lambda) / ecs-app(ECS Express) の 'アフター状態' として、 LT 自身が主張した「静的配信なら S3+CloudFront 一択」 を体現するスタック。",
+  "scripts": {
+    "build:html": "node scripts/build-static.mjs",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "deploy": "npm run build:html && npx cdk deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "aws-cdk": "2.1119.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.248.0",
+    "constructs": "^10.5.0"
+  }
+}

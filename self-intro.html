@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About me — たかぼー / GLOCALS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo+Black&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a141e;
+  --ink: #f4f1ea;
+  --ink-dim: #9ba8b8;
+  --ink-faint: #5a6878;
+  --cyan: #4fc3d9;
+  --cyan-bright: #7adcec;
+  --amber: #ff9144;
+  --line: rgba(244,241,234,0.08);
+  --line-strong: rgba(244,241,234,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #04080f;
+  font-family: 'Zen Kaku Gothic New', -apple-system, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+body {
+  background: linear-gradient(135deg, #04080f 0%, #0a141e 60%, #0e1828 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+/* 背景に巨大シンボル(Part II と同じ装飾) */
+.bg-symbol {
+  position: fixed;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(280px, 60vw, 580px);
+  color: rgba(79, 195, 217, 0.035);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 880px;
+  background: rgba(14, 24, 40, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line-strong);
+  border-radius: 24px;
+  padding: 56px 64px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  letter-spacing: 0.25em;
+  margin-bottom: 18px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 3px solid var(--cyan);
+  object-fit: cover;
+  box-shadow: 0 0 30px rgba(79,195,217,0.3);
+  flex-shrink: 0;
+}
+
+.name-block h1 {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.name-block h1 .accent { color: var(--cyan); }
+
+.name-block .handle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  color: var(--ink-dim);
+}
+.name-block .handle a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.name-block .handle a:hover { color: var(--cyan); }
+
+.section {
+  margin-bottom: 30px;
+}
+.section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.section-body {
+  font-size: 16px;
+  color: var(--ink);
+  line-height: 1.75;
+}
+.section-body .dim { color: var(--ink-dim); }
+
+.stack-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.chip {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: rgba(79,195,217,0.08);
+  color: var(--cyan);
+  border: 1px solid rgba(79,195,217,0.25);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.chip.amber {
+  background: rgba(255,145,68,0.08);
+  color: var(--amber);
+  border-color: rgba(255,145,68,0.25);
+}
+
+.lt-list {
+  display: grid;
+  gap: 14px;
+}
+.lt-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  background: rgba(244,241,234,0.04);
+  border: 1px solid var(--line-strong);
+  border-left: 4px solid var(--cyan);
+  border-radius: 10px;
+  padding: 16px 20px;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.lt-item:active { transform: translateY(1px); }
+.lt-item:hover {
+  background: rgba(79,195,217,0.05);
+  border-color: var(--cyan);
+}
+.lt-item.amber {
+  border-left-color: var(--amber);
+}
+.lt-item.amber:hover {
+  background: rgba(255,145,68,0.05);
+  border-color: var(--amber);
+}
+.lt-item .lt-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+.lt-item .lt-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.lt-item .lt-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.lt-item .lt-meta a {
+  color: var(--cyan);
+  text-decoration: none;
+  word-break: break-all;
+}
+.lt-item .lt-meta a:hover { text-decoration: underline; }
+.lt-item.amber .lt-meta a { color: var(--amber); }
+
+.links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  padding: 10px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.15s;
+}
+.link-btn:hover {
+  background: rgba(79,195,217,0.08);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+footer {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 640px) {
+  .card { padding: 36px 28px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .avatar { width: 72px; height: 72px; }
+  .name-block h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-symbol">📦→λ</div>
+
+<main class="card">
+
+  <div class="tag">JAWS-UG Lightning Talk · ABOUT ME</div>
+
+  <div class="header">
+    <img src="./icon.jpg" alt="たかぼー" class="avatar">
+    <div class="name-block">
+      <h1>たかぼー <span class="accent">/ takabo</span></h1>
+      <div class="handle">
+        <a href="https://x.com/takabo12786375" target="_blank" rel="noopener">@takabo12786375</a>
+        &nbsp;·&nbsp;
+        <span>GLOCALS</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-title">// 三足のわらじ</div>
+    <div class="section-body">
+      <ul style="list-style:none; padding:0; margin:0;">
+        <li style="padding:4px 0;">医療系 事業会社の <strong>クリエイティブ部門 責任者</strong></li>
+        <li style="padding:4px 0;">フリーランス エンジニアとして <strong>案件参加</strong></li>
+        <li style="padding:4px 0;"><strong>顧問先</strong> の問題解決にあたる</li>
+      </ul>
+      <p style="margin-top:12px;" class="dim">立ち位置は <strong style="color:var(--ink);">アプリケーションエンジニア</strong>。 動かして覚える、 机上で語らず実地で確かめる、 がモットー。</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// バックグラウンド</div>
+    <div class="section-body">
+      経歴は <strong style="color:var(--cyan);">MBA + マーケティング</strong> が先、 エンジニアリングは後追い。<br>
+      <span class="dim">戦略 / 戦術 から 設計 / 実装 まで、 同じ案件で関わることが多い。</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// これまで関わった領域</div>
+    <div class="section-body">
+      <ul style="list-style:none; padding:0; margin:0; font-size:14px; line-height:1.85;">
+        <li class="dim" style="padding:2px 0;">— 製薬 / 医療機器企業 (病院検索システム + 各種 Web アプリ + SaaS プロダクト)</li>
+        <li class="dim" style="padding:2px 0;">— 官公庁 公共入札 (トレーサビリティ総合管理システム)</li>
+        <li class="dim" style="padding:2px 0;">— Google Business Profile 管理用 SaaS</li>
+        <li class="dim" style="padding:2px 0;">— 大手ネット系メディア</li>
+        <li class="dim" style="padding:2px 0;">— 金融機関 / 金融系パッケージソフトウェア (経費 / 決算 / 動不動産 / 有価証券)</li>
+        <li class="dim" style="padding:2px 0;">— 人材系ビジネス企業の テックリード</li>
+        <li class="dim" style="padding:2px 0;">— 合同会社 代表社員 約 8 年 (最大 5 名規模)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// 最近のフォーカス</div>
+    <div class="section-body">
+      <strong style="color:var(--cyan);">LLMO</strong> / <strong style="color:var(--cyan);">データ分析</strong> 周りをよく触ってます。
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// 普段使い (GCP メイン)</div>
+    <div class="section-body">
+      <div class="stack-row">
+        <span class="chip">Next.js</span>
+        <span class="chip">TypeScript</span>
+        <span class="chip">Supabase</span>
+        <span class="chip">Cloud Run</span>
+        <span class="chip">GCP</span>
+        <span class="chip">Node.js</span>
+        <span class="chip">Docker</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// 好きな AWS サービス</div>
+    <div class="section-body">
+      <div class="stack-row">
+        <span class="chip amber">Amplify</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// 自己ツッコミ</div>
+    <div class="section-body" style="font-size:15px;">
+      <p style="border-left: 3px solid var(--cyan); padding: 10px 18px; background: rgba(79,195,217,0.06); border-radius: 0 8px 8px 0;">
+        <strong style="color:var(--cyan);">JAWS-UG で LT してるけど、 メインクラウドは GCP やねん。</strong>
+        ……という、 ちょっと AWS も触ってる GCP メインのアプリエンジニアが、
+        「AWS の今ある選択肢」 を覗き見しながら殴ってる、 ぐらいの距離感です。
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// JAWS-UG LT 履歴</div>
+    <div class="section-body">
+      <div class="lt-list">
+        <a class="lt-item amber" href="https://d1dhu2qos3a4zj.cloudfront.net/lambda.html" target="_blank" rel="noopener">
+          <div class="lt-tag">Part I · 2026-04-25 · JAWS-UG 静岡 #36</div>
+          <div class="lt-title">お前の Lambda、それ API サーバーちゃうで</div>
+          <div class="lt-meta">d1dhu2qos3a4zj.cloudfront.net/lambda.html</div>
+        </a>
+        <a class="lt-item" href="https://d1dhu2qos3a4zj.cloudfront.net/" target="_blank" rel="noopener">
+          <div class="lt-tag">Part II · 2026-05-22 · JAWS-UG 静岡</div>
+          <div class="lt-title">机上の比較から、実地の検証へ — ECS Express 移行レポート</div>
+          <div class="lt-meta">d1dhu2qos3a4zj.cloudfront.net/</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">// Find me</div>
+    <div class="links">
+      <a class="link-btn" href="https://x.com/takabo12786375" target="_blank" rel="noopener">𝕏 @takabo12786375</a>
+      <a class="link-btn" href="https://d1dhu2qos3a4zj.cloudfront.net/lambda.html" target="_blank" rel="noopener">Part I スライド</a>
+      <a class="link-btn" href="https://d1dhu2qos3a4zj.cloudfront.net/" target="_blank" rel="noopener">Part II スライド</a>
+    </div>
+  </section>
+
+  <footer>
+    TAKABO · GLOCALS · JAWS-UG SHIZUOKA
+  </footer>
+</main>
+
+</body>
+</html>

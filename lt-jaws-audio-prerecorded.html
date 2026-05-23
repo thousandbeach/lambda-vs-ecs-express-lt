@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>お前の Lambda それ API サーバーちゃうで - Prerecorded Audio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo+Black&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1c;
+  --bg-frame: #0e1424;
+  --ink: #f4f1ea;
+  --ink-dim: #9ba3b8;
+  --ink-faint: #5a6378;
+  --amber: #ff9144;
+  --amber-bright: #ffae5c;
+  --cyan: #4fc3d9;
+  --green: #7ed09a;
+  --red: #e85c5c;
+  --violet: #b88ee8;
+  --line: rgba(244,241,234,0.08);
+  --line-strong: rgba(244,241,234,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #05080f;
+  font-family: 'Zen Kaku Gothic New', -apple-system, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#presenter {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.stage {
+  width: 1280px;
+  height: 720px;
+  position: relative;
+  transform-origin: center center;
+}
+
+.slide {
+  width: 1280px;
+  height: 720px;
+  background: var(--bg);
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  border: 1px solid var(--line);
+}
+
+.slide.active { opacity: 1; pointer-events: auto; }
+
+.slide-num {
+  position: absolute;
+  top: 32px;
+  right: 40px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-faint);
+  letter-spacing: 0.15em;
+  z-index: 10;
+}
+
+.slide-brand {
+  position: absolute;
+  bottom: 32px;
+  left: 40px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  z-index: 10;
+}
+
+/* ============ CONTROLS ============ */
+.controls {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(14, 20, 36, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line-strong);
+  border-radius: 100px;
+  z-index: 100;
+  transition: opacity 0.3s;
+}
+
+.controls.hidden { opacity: 0; pointer-events: none; }
+
+.ctrl-btn {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.ctrl-btn:hover { background: rgba(255, 145, 68, 0.1); border-color: var(--amber); }
+
+.ctrl-btn.primary {
+  background: var(--amber);
+  color: var(--bg);
+  border-color: var(--amber);
+  width: 48px;
+  height: 48px;
+}
+.ctrl-btn.primary:hover { background: var(--amber-bright); }
+
+.ctrl-info {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--ink-dim);
+  padding: 0 16px;
+  min-width: 80px;
+  text-align: center;
+}
+.ctrl-info .current { color: var(--amber); font-weight: 700; }
+
+.ctrl-divider { width: 1px; height: 24px; background: var(--line-strong); }
+
+.speed-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.speed-wrap input { width: 80px; cursor: pointer; accent-color: var(--amber); }
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--amber);
+  z-index: 101;
+  width: 0;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px var(--amber);
+}
+
+.hint {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  z-index: 100;
+  background: rgba(14, 20, 36, 0.8);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  line-height: 1.8;
+}
+.hint kbd {
+  background: rgba(255, 145, 68, 0.15);
+  color: var(--amber);
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin: 0 2px;
+  font-size: 10px;
+}
+
+.speaking-indicator {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(255, 145, 68, 0.15);
+  border: 1px solid var(--amber);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--amber);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 100;
+}
+.speaking-indicator.active { opacity: 1; }
+.speaking-indicator .wave { display: flex; gap: 2px; align-items: center; height: 12px; }
+.speaking-indicator .wave span {
+  width: 2px;
+  background: var(--amber);
+  animation: wave 0.8s ease-in-out infinite;
+}
+.speaking-indicator .wave span:nth-child(1) { animation-delay: 0s; height: 40%; }
+.speaking-indicator .wave span:nth-child(2) { animation-delay: 0.1s; height: 80%; }
+.speaking-indicator .wave span:nth-child(3) { animation-delay: 0.2s; height: 60%; }
+.speaking-indicator .wave span:nth-child(4) { animation-delay: 0.15s; height: 100%; }
+.speaking-indicator .wave span:nth-child(5) { animation-delay: 0.05s; height: 50%; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.3); }
+}
+
+/* Warning banner when audio files missing */
+.audio-warning {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(232, 92, 92, 0.95);
+  color: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  font-size: 16px;
+  line-height: 1.8;
+  z-index: 200;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  display: none;
+}
+.audio-warning.show { display: block; }
+.audio-warning strong { font-size: 18px; display: block; margin-bottom: 10px; }
+.audio-warning code {
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+/* ============ SLIDE 1 ============ */
+.s1 {
+  background: radial-gradient(ellipse at 30% 40%, #12203d 0%, var(--bg) 60%);
+  padding: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.s1-lambda {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 260px;
+  line-height: 1;
+  color: var(--amber);
+  position: absolute;
+  top: -60px;
+  right: -20px;
+  opacity: 0.12;
+  letter-spacing: -0.05em;
+}
+
+.s1-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--amber);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.s1-tag::before { content: ''; width: 36px; height: 1px; background: var(--amber); }
+
+.s1-title {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-weight: 900;
+  font-size: 96px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.s1-title .accent { color: var(--amber); }
+
+.s1-sub {
+  font-size: 28px;
+  color: var(--ink-dim);
+  font-weight: 400;
+  margin-bottom: 80px;
+  letter-spacing: 0.02em;
+}
+
+.s1-speaker {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--ink-dim);
+}
+.s1-speaker .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 20px var(--amber);
+}
+.s1-speaker strong { color: var(--ink); font-weight: 700; }
+
+/* ============ SLIDE 2 ============ */
+.s2 {
+  padding: 100px 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 50px;
+}
+
+.s2-lead {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.s2-lead .amber { color: var(--amber); }
+
+.s2-quote {
+  padding: 40px 50px;
+  border-left: 4px solid var(--amber);
+  background: rgba(255,145,68,0.04);
+  max-width: 820px;
+}
+.s2-quote-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.s2-quote-items { font-size: 22px; line-height: 1.9; color: var(--ink); list-style: none; }
+.s2-quote-items li { padding-left: 28px; position: relative; }
+.s2-quote-items li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--amber);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.s2-punch {
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--amber);
+  letter-spacing: -0.01em;
+  padding-top: 20px;
+}
+
+/* ============ SLIDE 3 ============ */
+.s3 { padding: 80px 100px; display: flex; flex-direction: column; gap: 40px; }
+
+.s3-title {
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.s3-title .amber { color: var(--amber); }
+
+.s3-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 60px;
+  flex: 1;
+  align-content: center;
+}
+
+.s3-item {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.s3-item-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+  padding-top: 6px;
+  min-width: 40px;
+}
+.s3-item-body { flex: 1; }
+.s3-item-head { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.005em; }
+.s3-item-detail { font-size: 15px; color: var(--ink-dim); line-height: 1.6; }
+
+.s3-item-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--amber);
+  color: var(--bg);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-left: 10px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
+.s3-closer {
+  font-size: 28px;
+  color: var(--amber);
+  font-weight: 700;
+  text-align: center;
+  padding-top: 10px;
+  font-style: italic;
+}
+
+/* ============ SLIDE 4 ============ */
+.s4 { padding: 70px 80px; display: flex; flex-direction: column; gap: 30px; }
+
+.s4-title { font-size: 48px; font-weight: 900; letter-spacing: -0.01em; }
+.s4-title .amber { color: var(--amber); }
+
+.s4-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; flex: 1; }
+
+.s4-col { padding: 32px 36px; border-radius: 4px; position: relative; }
+.s4-col.good { background: rgba(126, 208, 154, 0.06); border: 1px solid rgba(126, 208, 154, 0.25); }
+.s4-col.bad { background: rgba(232, 92, 92, 0.06); border: 1px solid rgba(232, 92, 92, 0.25); }
+
+.s4-col-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.s4-col.good .s4-col-label { color: var(--green); }
+.s4-col.bad .s4-col-label { color: var(--red); }
+
+.s4-col-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+.s4-col.good .s4-col-title { color: var(--green); }
+.s4-col.bad .s4-col-title { color: var(--red); }
+
+.s4-list { list-style: none; font-size: 18px; line-height: 2; }
+.s4-list li {
+  padding-left: 24px;
+  position: relative;
+  border-bottom: 1px dashed var(--line);
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.s4-list li:last-child { border-bottom: none; }
+.s4-list.good li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.s4-list.bad li::before { content: '✗'; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+.s4-list small {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-faint);
+  line-height: 1.4;
+  padding-top: 2px;
+}
+
+.s4-closer {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--amber);
+  letter-spacing: 0.02em;
+  padding-top: 10px;
+}
+
+/* ============ SLIDE 5 ============ */
+.s5 { padding: 70px 80px; display: flex; flex-direction: column; gap: 30px; }
+
+.s5-title { font-size: 48px; font-weight: 900; letter-spacing: -0.01em; }
+.s5-title .amber { color: var(--amber); }
+
+.s5-table { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+.s5-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  padding: 14px 30px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  font-size: 20px;
+}
+.s5-row.head {
+  border-bottom: 2px solid var(--amber);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding-bottom: 14px;
+}
+.s5-row .lambda-col { color: var(--amber-bright); font-weight: 700; }
+.s5-row .cr-col { color: var(--cyan); font-weight: 700; }
+.s5-row.head .lambda-col { color: var(--amber); }
+.s5-row.head .cr-col { color: var(--cyan); }
+.s5-row .metric { color: var(--ink); }
+.s5-row small {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-top: 2px;
+  letter-spacing: 0;
+}
+
+.s5-closer {
+  text-align: center;
+  font-size: 22px;
+  color: var(--amber);
+  font-weight: 700;
+  padding-top: 10px;
+  line-height: 1.5;
+}
+
+/* ============ SLIDE 6 ============ */
+.s6 { padding: 60px 80px; display: flex; flex-direction: column; gap: 24px; }
+
+.s6-title { font-size: 48px; font-weight: 900; letter-spacing: -0.01em; }
+.s6-title .amber { color: var(--amber); }
+
+.s6-table { display: flex; flex-direction: column; }
+
+.s6-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.3fr 1fr 1fr 0.8fr;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  font-size: 17px;
+}
+.s6-row.head {
+  border-bottom: 2px solid var(--amber);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding-bottom: 10px;
+}
+.s6-row .phase { color: var(--ink); font-weight: 700; }
+.s6-row .lambda { color: var(--amber-bright); }
+.s6-row .cr { color: var(--cyan); }
+.s6-row .ecs { color: var(--violet); }
+.s6-row .winner {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 700;
+}
+.s6-row .warn { color: var(--red); font-weight: 600; }
+
+.s6-callout {
+  background: rgba(232, 92, 92, 0.08);
+  border-left: 4px solid var(--red);
+  padding: 20px 28px;
+}
+.s6-callout-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.s6-callout-body { font-size: 19px; font-weight: 700; line-height: 1.5; }
+.s6-callout-body .amber { color: var(--amber); }
+
+/* ============ SLIDE 7 ============ */
+.s7 {
+  padding: 60px 80px;
+  background: radial-gradient(ellipse at 80% 10%, rgba(79, 195, 217, 0.12) 0%, var(--bg) 55%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.s7-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--cyan);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.s7-tag::before { content: ''; width: 36px; height: 1px; background: var(--cyan); }
+
+.s7-title {
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.s7-title .cyan { color: var(--cyan); }
+
+.s7-meta {
+  font-size: 16px;
+  color: var(--ink-dim);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.03em;
+}
+.s7-meta .red { color: var(--red); font-weight: 700; }
+
+.s7-body { display: grid; grid-template-columns: 1.3fr 1fr; gap: 30px; flex: 1; }
+
+.s7-col { display: flex; flex-direction: column; gap: 14px; }
+
+.s7-col-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-strong);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.s7-col.secondary .s7-col-head { color: var(--ink-dim); }
+
+.s7-feature { display: flex; gap: 14px; align-items: flex-start; }
+
+.s7-feature-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  padding-top: 4px;
+  min-width: 18px;
+  font-weight: 700;
+}
+.s7-col.secondary .s7-feature-num { color: var(--ink-faint); }
+
+.s7-feature-title { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.s7-feature-detail { font-size: 13px; color: var(--ink-dim); line-height: 1.5; margin-top: 2px; }
+
+.s7-closer {
+  font-size: 18px;
+  color: var(--cyan);
+  font-weight: 700;
+  padding-top: 4px;
+  text-align: right;
+  font-style: italic;
+}
+
+/* ============ SLIDE 8 ============ */
+.s8 {
+  padding: 80px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+}
+
+.s8-title {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+.s8-box { padding: 28px 40px; border-radius: 4px; border-left: 4px solid; }
+.s8-box.b1 { background: rgba(255, 145, 68, 0.06); border-color: var(--amber); }
+.s8-box.b2 { background: rgba(79, 195, 217, 0.06); border-color: var(--cyan); }
+.s8-box.b3 { background: rgba(126, 208, 154, 0.06); border-color: var(--green); }
+
+.s8-box-icon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.s8-box.b1 .s8-box-icon { color: var(--amber); }
+.s8-box.b2 .s8-box-icon { color: var(--cyan); }
+.s8-box.b3 .s8-box-icon { color: var(--green); }
+
+.s8-box-head { font-size: 26px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.01em; }
+
+.s8-box-body {
+  font-size: 16px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+  font-family: 'JetBrains Mono', monospace;
+}
+.s8-box-body .amber { color: var(--amber); }
+.s8-box-body .cyan { color: var(--cyan); }
+.s8-box-body .green { color: var(--green); }
+
+.s8-closer {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--amber);
+  letter-spacing: -0.01em;
+  padding-top: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="hint">
+  <div><kbd>Space</kbd> 再生 / 停止</div>
+  <div><kbd>→</kbd> 次へ &nbsp; <kbd>←</kbd> 戻る</div>
+  <div><kbd>F</kbd> フルスクリーン</div>
+  <div><kbd>R</kbd> 最初から</div>
+</div>
+
+<div class="speaking-indicator" id="speakingIndicator">
+  <div class="wave"><span></span><span></span><span></span><span></span><span></span></div>
+  <span>SPEAKING</span>
+</div>
+
+<div class="audio-warning" id="audioWarning">
+  <strong>⚠️ 音声ファイルが見つかりません</strong>
+  <code>./audio/</code> ディレクトリに <code>slide_1.mp3</code> 〜 <code>slide_8.mp3</code> を配置してください。<br><br>
+  まだ音声を生成してない場合:<br>
+  <code>python generate_audio.py</code> を実行してください。<br><br>
+  (※ スライドめくりは動作します)
+</div>
+
+<div id="presenter">
+  <div class="stage" id="stage">
+
+    <!-- SLIDE 1 -->
+    <section class="slide s1 active" data-idx="0">
+      <div class="s1-lambda">λ</div>
+      <div class="slide-num">01 / 08</div>
+      <div class="s1-tag">JAWS-UG Lightning Talk · 2026</div>
+      <h1 class="s1-title">
+        お前の <span class="accent">Lambda</span><br>
+        それ API サーバー<br>ちゃうで
+      </h1>
+      <p class="s1-sub">― Lambda を本業に戻す、2026 年の設計論 ―</p>
+      <div class="s1-speaker">
+  <img src="./icon.jpg" alt="takabo" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--amber);object-fit:cover;box-shadow:0 0 20px rgba(255,145,68,0.3);">
+  <span><strong>@takabo12786375</strong> &nbsp; / &nbsp; GLOCALS</span>
+</div>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide s2" data-idx="1">
+      <div class="slide-num">02 / 08</div>
+      <p class="s2-lead">まず白状する。<br><span class="amber">俺も、やってた。</span></p>
+      <div class="s2-quote">
+        <div class="s2-quote-title">// よくある構成</div>
+        <ul class="s2-quote-items">
+          <li>Express / Hono を serverless-http で Lambda に載せる</li>
+          <li>API Gateway の背後に置いて、ドメイン当ててデプロイ</li>
+          <li>TypeScript の型をフロントと共有、開発は爆速</li>
+          <li>ゼロスケール、インフラ管理ゼロ、安い（と思ってた）</li>
+        </ul>
+      </div>
+      <p class="s2-punch">ええやん？</p>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide s3" data-idx="2">
+      <div class="slide-num">03 / 08</div>
+      <h2 class="s3-title">でも、運用始めたら<br><span class="amber">Lambda が悲鳴あげてた。</span></h2>
+      <div class="s3-grid">
+        <div class="s3-item"><span class="s3-item-num">01</span><div class="s3-item-body"><div class="s3-item-head">コールドスタートで p99 崩壊</div><div class="s3-item-detail">Node でも数百 ms、コンテナや重めだと数秒。SLO が持たん。</div></div></div>
+        <div class="s3-item"><span class="s3-item-num">02</span><div class="s3-item-body"><div class="s3-item-head">6 MB レスポンス壁で S3 逃がし地獄</div><div class="s3-item-detail">Streaming で 200MB 行けるが、API GW 経由は結局 10MB で詰まる。</div></div></div>
+        <div class="s3-item"><span class="s3-item-num">03</span><div class="s3-item-body"><div class="s3-item-head">DB コネクション問題</div><div class="s3-item-detail">RDS Proxy 入れても複雑さは残る。Supabase 直叩きも限界がある。</div></div></div>
+        <div class="s3-item"><span class="s3-item-num">04</span><div class="s3-item-body"><div class="s3-item-head">Warmer 入れたら「それもう常駐やん」</div><div class="s3-item-detail">Provisioned Concurrency はアイドル中も課金される。</div></div></div>
+        <div class="s3-item"><span class="s3-item-num">05</span><div class="s3-item-body"><div class="s3-item-head">2025/8/1 〜 INIT 課金開始<span class="s3-item-badge">NEW</span></div><div class="s3-item-detail">コールドスタートが「遅い」だけやなく「金もかかる」問題に昇格。</div></div></div>
+        <div class="s3-item"><span class="s3-item-num">06</span><div class="s3-item-body"><div class="s3-item-head">15 分制限、同時実行 1/インスタンス</div><div class="s3-item-detail">I/O バウンドな API で「同時 1 」は根本的にミスマッチ。</div></div></div>
+      </div>
+      <p class="s3-closer">Lambda に罪はない。ミスキャストしたのは俺や。</p>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide s4" data-idx="3">
+      <div class="slide-num">04 / 08</div>
+      <h2 class="s4-title">Lambda の<span class="amber">本当の居場所</span></h2>
+      <div class="s4-cols">
+        <div class="s4-col good">
+          <div class="s4-col-label">// where λ belongs</div>
+          <div class="s4-col-title">ここで Lambda は最強</div>
+          <ul class="s4-list good">
+            <li>SQS → メッセージ処理</li>
+            <li>S3 → ファイル処理(サムネ生成など)</li>
+            <li>EventBridge → イベント駆動の糊付け</li>
+            <li>Webhook 受信(単発、短命)</li>
+            <li>Cron バッチ・Step Functions のタスク</li>
+          </ul>
+        </div>
+        <div class="s4-col bad">
+          <div class="s4-col-label">// misfit</div>
+          <div class="s4-col-title">押し付けると壊れる</div>
+          <ul class="s4-list bad">
+            <li>常時 warm な REST API サーバー<small>I/O バウンド × 同時実行 1 = 悲劇</small></li>
+            <li>Next.js SSR(重い初期化)<small>Vercel / Cloud Run のが自然</small></li>
+            <li>WebSocket<small>Lambda 単体では永続接続不可。API GW 経由でも相性悪い</small></li>
+            <li>DB コネクションプールの管理者</li>
+            <li>大きなレスポンスを返す仕事</li>
+          </ul>
+        </div>
+      </div>
+      <p class="s4-closer">Lambda はイベントハンドラー。API サーバーちゃう。</p>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section class="slide s5" data-idx="4">
+      <div class="slide-num">05 / 08</div>
+      <h2 class="s5-title">数字で<span class="amber">殴る</span></h2>
+      <div class="s5-table">
+        <div class="s5-row head"><div>比較項目</div><div class="lambda-col">Lambda</div><div class="cr-col">Cloud Run</div></div>
+        <div class="s5-row"><div class="metric">同時実行 / インスタンス</div><div class="lambda-col">1</div><div class="cr-col">最大 1,000 <small>(default 80)</small></div></div>
+        <div class="s5-row"><div class="metric">実行時間</div><div class="lambda-col">15 分</div><div class="cr-col">60 分</div></div>
+        <div class="s5-row"><div class="metric">レスポンス上限</div><div class="lambda-col">6 MB <small>(streaming 200MB)</small></div><div class="cr-col">32 MB <small>(HTTP/2・streaming は実質∞)</small></div></div>
+        <div class="s5-row"><div class="metric">パッケージサイズ</div><div class="lambda-col">zip 250MB / container 10GB</div><div class="cr-col">実質無制限</div></div>
+        <div class="s5-row"><div class="metric">ゼロスケール</div><div class="lambda-col">○</div><div class="cr-col">○</div></div>
+        <div class="s5-row"><div class="metric">コールドスタート</div><div class="lambda-col">数百 ms 〜 数秒</div><div class="cr-col">数百 ms 〜</div></div>
+      </div>
+      <p class="s5-closer">同時実行 <span style="color:var(--amber-bright)">1</span> vs <span style="color:var(--cyan)">1,000</span>。<br>I/O バウンドな Web API でこの差は埋められん。</p>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 6 -->
+    <section class="slide s6" data-idx="5">
+      <div class="slide-num">06 / 08</div>
+      <h2 class="s6-title">金の話で<span class="amber">殴る</span></h2>
+      <div class="s6-table">
+        <div class="s6-row head"><div>フェーズ</div><div>Lambda</div><div>Cloud Run</div><div>ECS Express</div><div>勝者</div></div>
+        <div class="s6-row"><div class="phase">ほぼゼロ</div><div class="lambda">$0〜1</div><div class="cr">$0</div><div class="ecs">$30〜50</div><div class="winner">CR / λ</div></div>
+        <div class="s6-row"><div class="phase">日 1,000 req</div><div class="lambda">$0〜5</div><div class="cr">$0〜5 <small style="color:var(--ink-faint)">(無料枠)</small></div><div class="ecs">$30〜50</div><div class="winner">Cloud Run</div></div>
+        <div class="s6-row"><div class="phase">常時 2-3 台相当</div><div class="lambda warn">$20〜80<br><small style="color:var(--ink-faint);font-weight:400">+ Warmer/CS 問題</small></div><div class="cr">$50〜100</div><div class="ecs">$60〜90</div><div class="winner">互角</div></div>
+        <div class="s6-row"><div class="phase">常時 10 台+</div><div class="lambda warn">高額化リスク</div><div class="cr">$300〜600</div><div class="ecs">$250〜400</div><div class="winner">ECS Express</div></div>
+      </div>
+      <div class="s6-callout">
+        <div class="s6-callout-tag">※ 2025/8/1 から</div>
+        <div class="s6-callout-body">Lambda <span class="amber">INIT フェーズが課金対象に。</span><br>Warmer 戦略は「常駐コスト + CS」の最悪解になった。</div>
+      </div>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section class="slide s7" data-idx="6">
+      <div class="slide-num">07 / 08</div>
+      <div class="s7-tag">🔥 Breaking · 2025.11</div>
+      <h2 class="s7-title">AWS 勢、<span class="cyan">待望の</span><br>Cloud Run 対抗が出た。</h2>
+      <p class="s7-meta"><span style="color:var(--cyan);font-weight:700">🐋 ECS Express Mode</span> &nbsp;/&nbsp; 2025年11月発表 &nbsp;/&nbsp; App Runner は <span class="red">4/30 新規受付停止</span>、実質バトンタッチ</p>
+      <div class="s7-body">
+        <div class="s7-col">
+          <div class="s7-col-head">// Cloud Run にない、AWS ならではの強み</div>
+          <div class="s7-feature"><span class="s7-feature-num">01</span><div><div class="s7-feature-title">全リソースが自アカウント内で可視</div><div class="s7-feature-detail">Cloud Run は Google 側に隠れる。ここが AWS ユーザーの安心感。</div></div></div>
+          <div class="s7-feature"><span class="s7-feature-num">02</span><div><div class="s7-feature-title">ALB 共有(最大 25 サービス)</div><div class="s7-feature-detail">host-header ルーティング。マイクロサービス時代にコストが効く。</div></div></div>
+          <div class="s7-feature"><span class="s7-feature-num">03</span><div><div class="s7-feature-title">通常 ECS へシームレス移行</div><div class="s7-feature-detail">Cloud Run → GKE の断崖より圧倒的になだらか。</div></div></div>
+        </div>
+        <div class="s7-col secondary">
+          <div class="s7-col-head">// 機能一式、足りないものなし</div>
+          <div class="s7-feature"><span class="s7-feature-num">04</span><div><div class="s7-feature-title">1 コンテナ + IAM 2 つで本番構築</div></div></div>
+          <div class="s7-feature"><span class="s7-feature-num">05</span><div><div class="s7-feature-title">ALB + HTTPS + AS + カナリア</div><div class="s7-feature-detail">5% shift → 自動ロールバック</div></div></div>
+          <div class="s7-feature"><span class="s7-feature-num">06</span><div><div class="s7-feature-title">追加料金なし</div><div class="s7-feature-detail">Fargate + ALB の実費のみ</div></div></div>
+          <div class="s7-feature"><span class="s7-feature-num">07</span><div><div class="s7-feature-title">CFN / CDK / Terraform 完全対応</div></div></div>
+        </div>
+      </div>
+      <p class="s7-closer">App Runner では対抗になれんかった。Express Mode は、違う。</p>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section class="slide s8" data-idx="7">
+      <div class="slide-num">08 / 08</div>
+      <h2 class="s8-title">2026 年の<span style="color:var(--amber)">処方箋</span></h2>
+      <div class="s8-box b1">
+        <div class="s8-box-icon">🎯 &nbsp; Put λ back to work</div>
+        <div class="s8-box-head">Lambda を本業に戻せ</div>
+        <div class="s8-box-body">SQS / S3 / EventBridge / Webhook / Cron &nbsp;—&nbsp; <span class="amber">ここで Lambda は最強</span></div>
+      </div>
+      <div class="s8-box b2">
+        <div class="s8-box-icon">🔥 &nbsp; Containers for APIs</div>
+        <div class="s8-box-head">API サーバーにはコンテナ</div>
+        <div class="s8-box-body"><span class="cyan">Cloud Run</span>(制約なし) / <span class="cyan">ECS Express Mode</span>(AWS 縛り、ついに対抗)</div>
+      </div>
+      <div class="s8-box b3">
+        <div class="s8-box-icon">🧩 &nbsp; Hybrid, not monolith</div>
+        <div class="s8-box-head">1 つの技術で全部やるな</div>
+        <div class="s8-box-body">BFF → <span class="green">Vercel</span> &nbsp;/&nbsp; API → <span class="green">Cloud Run / ECS Express</span><br>イベント → <span class="green">Lambda</span> &nbsp;/&nbsp; DB 直結 → <span class="green">Edge Functions</span></div>
+      </div>
+      <p class="s8-closer">適材適所。それだけの話や。</p>
+      <div class="slide-brand">TAKABO · GLOCALS</div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Hidden audio element -->
+<audio id="audioPlayer" preload="auto"></audio>
+
+<div class="controls" id="controls">
+  <button class="ctrl-btn" id="btnFirst" title="最初に戻る">⏮</button>
+  <button class="ctrl-btn" id="btnPrev" title="前のスライド">←</button>
+  <button class="ctrl-btn primary" id="btnPlay" title="再生 / 停止">▶</button>
+  <button class="ctrl-btn" id="btnNext" title="次のスライド">→</button>
+  <div class="ctrl-info"><span class="current" id="curSlide">1</span> / <span id="totalSlide">8</span></div>
+  <div class="ctrl-divider"></div>
+  <div class="speed-wrap">
+    <span>速度</span>
+    <input type="range" id="rateSlider" min="0.8" max="1.4" step="0.05" value="1.0">
+    <span id="rateDisp">1.00x</span>
+  </div>
+  <button class="ctrl-btn" id="btnFull" title="フルスクリーン">⛶</button>
+</div>
+
+<script>
+// ============== SCALING ==============
+const stage = document.getElementById('stage');
+function scaleStage() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const scale = Math.min(vw / 1280, vh / 720) * 0.92;
+  stage.style.transform = `scale(${scale})`;
+}
+scaleStage();
+window.addEventListener('resize', scaleStage);
+
+// ============== STATE ==============
+let currentSlide = 0;
+let isPlaying = false;
+const totalSlides = 8;
+const slides = document.querySelectorAll('.slide');
+
+const audioPlayer = document.getElementById('audioPlayer');
+const btnPlay = document.getElementById('btnPlay');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const btnFirst = document.getElementById('btnFirst');
+const btnFull = document.getElementById('btnFull');
+const curSlide = document.getElementById('curSlide');
+const totalSlideEl = document.getElementById('totalSlide');
+const rateSlider = document.getElementById('rateSlider');
+const rateDisp = document.getElementById('rateDisp');
+const progress = document.getElementById('progress');
+const speakingIndicator = document.getElementById('speakingIndicator');
+const controls = document.getElementById('controls');
+const audioWarning = document.getElementById('audioWarning');
+
+totalSlideEl.textContent = totalSlides;
+
+// ============== AUDIO ==============
+function audioPath(idx) {
+  return `./audio/slide_${idx + 1}.mp3`;
+}
+
+function playAudio(idx) {
+  stopAudio();
+  audioPlayer.src = audioPath(idx);
+  audioPlayer.playbackRate = parseFloat(rateSlider.value);
+
+  const playPromise = audioPlayer.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      speakingIndicator.classList.add('active');
+      audioWarning.classList.remove('show');
+    }).catch((err) => {
+      console.error('Audio play error:', err);
+      speakingIndicator.classList.remove('active');
+      // file:// で 404 のとき等
+      if (isPlaying) {
+        audioWarning.classList.add('show');
+        setTimeout(() => audioWarning.classList.remove('show'), 5000);
+      }
+    });
+  }
+}
+
+function stopAudio() {
+  audioPlayer.pause();
+  audioPlayer.currentTime = 0;
+  speakingIndicator.classList.remove('active');
+}
+
+audioPlayer.addEventListener('ended', () => {
+  speakingIndicator.classList.remove('active');
+  if (isPlaying) {
+    setTimeout(() => {
+      if (isPlaying) next();
+    }, 800);
+  }
+});
+
+audioPlayer.addEventListener('error', () => {
+  speakingIndicator.classList.remove('active');
+  if (isPlaying) {
+    audioWarning.classList.add('show');
+    setTimeout(() => audioWarning.classList.remove('show'), 5000);
+  }
+});
+
+// ============== NAV ==============
+function goToSlide(idx) {
+  if (idx < 0 || idx >= totalSlides) return;
+  slides.forEach(s => s.classList.remove('active'));
+  slides[idx].classList.add('active');
+  currentSlide = idx;
+  curSlide.textContent = idx + 1;
+  progress.style.width = `${((idx + 1) / totalSlides) * 100}%`;
+}
+
+function next() {
+  if (currentSlide < totalSlides - 1) {
+    goToSlide(currentSlide + 1);
+    if (isPlaying) playAudio(currentSlide);
+  } else {
+    isPlaying = false;
+    btnPlay.textContent = '▶';
+    stopAudio();
+  }
+}
+
+function togglePlay() {
+  isPlaying = !isPlaying;
+  if (isPlaying) {
+    btnPlay.textContent = '⏸';
+    playAudio(currentSlide);
+  } else {
+    btnPlay.textContent = '▶';
+    stopAudio();
+  }
+}
+
+function goFirst() {
+  goToSlide(0);
+  isPlaying = false;
+  btnPlay.textContent = '▶';
+  stopAudio();
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+btnPlay.addEventListener('click', togglePlay);
+btnNext.addEventListener('click', () => { stopAudio(); goToSlide(currentSlide + 1); if (isPlaying) playAudio(currentSlide); });
+btnPrev.addEventListener('click', () => { stopAudio(); goToSlide(currentSlide - 1); if (isPlaying) playAudio(currentSlide); });
+btnFirst.addEventListener('click', goFirst);
+btnFull.addEventListener('click', toggleFullscreen);
+
+rateSlider.addEventListener('input', () => {
+  const rate = parseFloat(rateSlider.value);
+  rateDisp.textContent = `${rate.toFixed(2)}x`;
+  audioPlayer.playbackRate = rate;
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { stopAudio(); goToSlide(currentSlide + 1); if (isPlaying) playAudio(currentSlide); }
+  else if (e.key === 'ArrowLeft') { stopAudio(); goToSlide(currentSlide - 1); if (isPlaying) playAudio(currentSlide); }
+  else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
+  else if (e.key === 'r' || e.key === 'R') { goFirst(); }
+  else if (e.key === 'Escape') { stopAudio(); isPlaying = false; btnPlay.textContent = '▶'; }
+});
+
+progress.style.width = `${(1 / totalSlides) * 100}%`;
+
+let hideTimer;
+function resetHideTimer() {
+  controls.classList.remove('hidden');
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => {
+    if (!controls.matches(':hover')) controls.classList.add('hidden');
+  }, 3000);
+}
+document.addEventListener('mousemove', resetHideTimer);
+resetHideTimer();
+</script>
+</body>
+</html>

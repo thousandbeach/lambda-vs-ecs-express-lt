@@ -1,0 +1,59 @@
+{
+  "_meta": {
+    "date": "2026-05-22",
+    "from": "macbook (ap-northeast-1 origin via ISP)",
+    "tool": "oha 1.14.0",
+    "config": {
+      "duration_seconds": 30,
+      "concurrency": 50,
+      "endpoint": "GET /health"
+    },
+    "warmup_runs": 3,
+    "note": "ECS Express の measurement は image deploy 完了 前 のもの (image swap でランタイム挙動は変わらない想定; deploy 完了後の re-measurement は B4.5 で実施)"
+  },
+  "lambda_cdk_app": {
+    "url": "https://gxyrfra7u7zs7bz3g6abbkshye0zjynp.lambda-url.ap-northeast-1.on.aws/health",
+    "stack_arn": "arn:aws:cloudformation:ap-northeast-1:xxxxxxxxxxxx:stack/LtJawsLambdaStack/e103ef40-400d-11f1-b357-06309641bc9b",
+    "warmup_ms": [821, 62, 84],
+    "rps": 1906.9,
+    "p10_ms": 21.8,
+    "p25_ms": 23.2,
+    "p50_ms": 25.2,
+    "p75_ms": 27.4,
+    "p90_ms": 29.8,
+    "p95_ms": 31.9,
+    "p99_ms": 38.1,
+    "p999_ms": 127.4,
+    "p9999_ms": 716.0,
+    "total_responses": 57165,
+    "deadline_aborts": 50,
+    "status_code": "200 only",
+    "comment": "1st warmup hit a cold start (821ms). Sustained bench was fully warm; AWS kept the function alive throughout."
+  },
+  "ecs_express": {
+    "url": "https://lt-16808a3125334d3f993982859eaf40f6.ecs.ap-northeast-1.on.aws/health",
+    "stack_arn": "arn:aws:cloudformation:ap-northeast-1:xxxxxxxxxxxx:stack/LtJawsEcsExpressStack/22097ae0-554f-11f1-bc25-0e5ed474641b",
+    "warmup_ms": [230, 181, 165],
+    "rps": 2733.7,
+    "p10_ms": 12.6,
+    "p25_ms": 13.8,
+    "p50_ms": 15.3,
+    "p75_ms": 17.2,
+    "p90_ms": 24.7,
+    "p95_ms": 30.6,
+    "p99_ms": 75.3,
+    "p999_ms": 198.1,
+    "p9999_ms": 338.6,
+    "total_responses": 81970,
+    "deadline_aborts": 50,
+    "status_code": "200 only",
+    "comment": "No cold start (1 task always running). Higher throughput + lower median, but tail latency (p99/p999) is worse than Lambda. Hypothesis: ALB hop + single-task contention under burst; Lambda fans out to multiple concurrent function instances under load."
+  },
+  "lt_takeaways": [
+    "ECS Express の sustained throughput は Lambda の 1.43x (2734 vs 1907 RPS)",
+    "ECS Express の median (p50) は Lambda より 40% 速い (15ms vs 25ms)",
+    "意外にも Lambda の方が p99 は良い (38ms vs 75ms) — warm fan-out が効いてる",
+    "cold start は Lambda が 821ms 出るのに対し ECS は 0(常時 1 task)",
+    "結論: 静的配信に限れば差は微妙。 IO バウンドな API で差が広がる"
+  ]
+}

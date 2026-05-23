@@ -1,0 +1,78 @@
+# =============================================================================
+# Docker build context exclusions for ecs-app/runtime/Dockerfile.
+#
+# Build context = リポジトリルート (`shared/` + `ecs-app/runtime/` 両方を取りたいため)。
+# そのため build context のサイズが膨らみやすく、また cdk.out / node_modules を
+# 取り込むと **DockerImageAsset の staging が無限再帰** する(staging dest が
+# build context 内にできるため)。
+#
+# このファイルで build context から確実に除外する。
+# =============================================================================
+
+# ---- CDK / build artifacts -------------------------------------------------
+**/cdk.out/
+**/.cdk.staging/
+**/dist/
+**/build/
+
+# ---- Node ------------------------------------------------------------------
+# 注: Dockerfile が WORKDIR で COPY package.json package-lock.json してから
+#     `npm ci` し直すので、ホストの node_modules はイメージに不要。
+**/node_modules/
+
+# ---- Git -------------------------------------------------------------------
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# ---- Editor / OS junk ------------------------------------------------------
+.vscode/
+.idea/
+**/.DS_Store
+**/._*
+*.swp
+*.swo
+*~
+
+# ---- Logs ------------------------------------------------------------------
+*.log
+**/logs/
+
+# ---- Python (音声生成スクリプトの実行環境) --------------------------------
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+**/venv/
+
+# ---- Claude / agent artifacts ----------------------------------------------
+.claude/
+**/.claude/
+.aider*
+.cursor/
+
+# ---- Compiled TS artifacts (cdk-app/ 内に残ったり残らなかったり) ----------
+# 注: shared/app.ts は残す必要がある。.ts は除外しない。
+# 注: jest.config.js だけは残す必要がある(.js は基本除外したいが個別救出)。
+cdk-app/**/*.js
+cdk-app/**/*.d.ts
+!cdk-app/jest.config.js
+ecs-app/**/*.js
+ecs-app/**/*.d.ts
+!ecs-app/jest.config.js
+
+# ---- Secrets ---------------------------------------------------------------
+.env
+.env.*
+*.pem
+*.key
+secrets.json
+
+# ---- README やドキュメントもイメージには不要 -------------------------------
+# (server.js / public/ だけが runtime stage に乗ればよい)
+README.md
+**/README.md
+LICENSE
+CHANGELOG.md

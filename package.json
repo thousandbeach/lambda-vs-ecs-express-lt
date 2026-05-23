@@ -1,0 +1,17 @@
+{
+  "name": "lt-presentation",
+  "private": true,
+  "version": "0.0.0",
+  "description": "JAWS-UG LT 「お前の Lambda それ API サーバーちゃうで」 + 続編 「ECS Express 移行レポート」 の資料一式と、Lambda / ECS Express 両方の配信スタック。",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "hono": "^4.12.15",
+    "@hono/node-server": "^1.18.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "~5.9.3"
+  }
+}
