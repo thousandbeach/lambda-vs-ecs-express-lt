@@ -51,8 +51,11 @@ function buildOgpTags({ pagePath, title, description, imagePath }) {
     '<meta property="og:type" content="website">',
     `<meta property="og:url" content="${url}">`,
     `<meta property="og:image" content="${image}">`,
+    `<meta property="og:image:secure_url" content="${image}">`,
+    '<meta property="og:image:type" content="image/jpeg">',
     '<meta property="og:image:width" content="1200">',
     '<meta property="og:image:height" content="630">',
+    `<meta property="og:image:alt" content="${title}">`,
     '<meta property="og:site_name" content="JAWS-UG LT by @takabo12786375">',
     '<meta property="og:locale" content="ja_JP">',
     '<meta name="twitter:card" content="summary_large_image">',
@@ -136,7 +139,8 @@ cpSync(join(REPO_ROOT, 'icon.jpg'), join(DIST, 'icon.jpg'));
 cpSync(join(REPO_ROOT, 'ogp.jpg'), join(DIST, 'ogp.jpg')); // Part I 用
 cpSync(join(REPO_ROOT, 'ogp-ecs.jpg'), join(DIST, 'ogp-ecs.jpg')); // Part II 用
 cpSync(join(REPO_ROOT, 'ogp-intro.jpg'), join(DIST, 'ogp-intro.jpg')); // 自己紹介用
-console.log('  copied icon.jpg, ogp.jpg, ogp-ecs.jpg, ogp-intro.jpg');
+cpSync(join(REPO_ROOT, 'robots.txt'), join(DIST, 'robots.txt')); // クローラ全許可 (FB / Twitter / etc)
+console.log('  copied icon.jpg, ogp.jpg, ogp-ecs.jpg, ogp-intro.jpg, robots.txt');
 
 // ── 4. 音声ファイル群 ───────────────────────────────────────────
 cpSync(join(REPO_ROOT, 'audio'), join(DIST, 'audio'), { recursive: true });

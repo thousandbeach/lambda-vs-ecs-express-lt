@@ -106,8 +106,11 @@ function buildOgpTags(args: {
     '<meta property="og:type" content="website">',
     `<meta property="og:url" content="${url}">`,
     `<meta property="og:image" content="${image}">`,
+    `<meta property="og:image:secure_url" content="${image}">`,
+    '<meta property="og:image:type" content="image/jpeg">',
     '<meta property="og:image:width" content="1200">',
     '<meta property="og:image:height" content="630">',
+    `<meta property="og:image:alt" content="${args.title}">`, // shared/app.ts は `args.title` (引数 obj 名 = args のため)
     '<meta property="og:site_name" content="JAWS-UG LT by @takabo12786375">',
     '<meta property="og:locale" content="ja_JP">',
     '<meta name="twitter:card" content="summary_large_image">',

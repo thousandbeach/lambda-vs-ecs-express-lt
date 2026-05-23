@@ -770,7 +770,7 @@ body.ogp-mode .audio-warning,
 body.ogp-mode .progress,
 body.ogp-mode .slide-num,
 body.ogp-mode .slide-brand { display: none !important; }
-body.ogp-mode .stage { transform: scale(1) !important; }  /* stage 1280×720 を viewport にぴったり */
+body.ogp-mode .stage { transform: scale(0.9375) !important; }  /* stage 1280×720 → 1200×675 (viewport 1200×630 に幅で fit)、 上下 45px は overflow:hidden で切れる */
 body.ogp-mode .slide:not(.active) { display: none !important; }
 </style>
 </head>
